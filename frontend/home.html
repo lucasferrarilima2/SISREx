@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SiSREx — Controle de Acesso</title>
+    <link rel="icon" href="img/logo-eb.png">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+        :root {
+          /* Paleta institucional — verde-oliva e ouro */
+          --brand-900: #0d1e15;
+          --brand-800: #13291c;
+          --brand-700: #1a3a27;
+          --brand-600: #235c3c;
+          --brand-500: #2c7a4b;
+          --brand-050: #eaf3ed;
+          --gold-600: #a8842f;
+          --gold-500: #c8a24a;
+          --gold-400: #ddbf76;
+
+          --bg: #f3f5f3;
+          --surface: #ffffff;
+          --surface-alt: #fafbfa;
+          --line: #e2e7e3;
+          --line-strong: #cfd7d1;
+
+          --ink: #12211a;
+          --ink-2: #3d5147;
+          --muted: #6d7f75;
+
+          --danger: #b42318;
+          --danger-soft: #fdf0ee;
+          --success: #1a6b42;
+          --success-soft: #e8f5ee;
+          --info: #1d4ed8;
+
+          --radius: 12px;
+          --radius-sm: 8px;
+          --shadow-sm: 0 1px 2px rgba(13, 30, 21, 0.04);
+          --shadow-md: 0 4px 16px rgba(13, 30, 21, 0.06);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+          font-family: 'Poppins', sans-serif;
+          background-color: var(--bg);
+          color: var(--ink);
+          -webkit-font-smoothing: antialiased;
+        }
+
+        a { text-decoration: none; }
+        ul { list-style: none; }
+
+        .app { display: grid; grid-template-columns: 268px 1fr; min-height: 100vh; }
+        .app-main { display: flex; flex-direction: column; min-width: 0; }
+
+        /* ============ SIDEBAR ============ */
+        .sidebar {
+          background: linear-gradient(180deg, var(--brand-900) 0%, var(--brand-800) 100%);
+          color: #e8efe9;
+          display: flex;
+          flex-direction: column;
+          position: sticky;
+          top: 0;
+          height: 100vh;
+          border-right: 1px solid var(--brand-700);
+        }
+        .sidebar-header {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 22px 20px;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+          box-shadow: inset 0 -2px 0 var(--gold-600);
+        }
+        .sidebar-logo { width: 42px; height: 42px; object-fit: contain; }
+        .brand-text .brand-name {
+          font-size: 1.25rem; font-weight: 700; letter-spacing: 0.04em; line-height: 1.1;
+        }
+        .brand-text .brand-sub {
+          display: block; font-size: 0.66rem; font-weight: 500; letter-spacing: 0.12em;
+          text-transform: uppercase; color: var(--gold-400); margin-top: 3px;
+        }
+
+        .sidebar-nav { flex: 1; padding: 22px 14px; overflow-y: auto; }
+        .nav-group-label {
+          font-size: 0.65rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase;
+          color: rgba(232, 239, 233, 0.42); padding: 0 12px; margin: 0 0 10px;
+        }
+        .nav-group + .nav-group { margin-top: 26px; }
+        .nav-link {
+          display: flex; align-items: center; gap: 13px;
+          padding: 11px 14px; margin-bottom: 4px;
+          border-radius: var(--radius-sm);
+          color: rgba(232, 239, 233, 0.82);
+          font-size: 0.92rem; font-weight: 500;
+          border-left: 3px solid transparent;
+          transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+        }
+        .nav-link:hover { background-color: rgba(255, 255, 255, 0.06); color: #fff; }
+        .nav-link.active {
+          background-color: rgba(44, 122, 75, 0.28);
+          border-left-color: var(--gold-500);
+          color: #fff; font-weight: 600;
+        }
+        .nav-link i { width: 18px; text-align: center; font-size: 0.95rem; }
+
+        .sidebar-footer { padding: 14px; border-top: 1px solid rgba(255, 255, 255, 0.08); }
+        .sidebar-footer .nav-link { margin-bottom: 0; }
+        .sidebar-version {
+          padding: 12px 16px 4px;
+          font-size: 0.68rem; line-height: 1.5;
+          color: rgba(232, 239, 233, 0.38);
+        }
+
+        /* ============ TOPBAR ============ */
+        .topbar {
+          position: sticky; top: 0; z-index: 20;
+          display: flex; align-items: center; gap: 16px;
+          height: 64px; padding: 0 28px;
+          background-color: rgba(255, 255, 255, 0.92);
+          backdrop-filter: blur(8px);
+          border-bottom: 1px solid var(--line);
+        }
+        .menu-toggle {
+          display: none; background: none; border: 1px solid var(--line);
+          border-radius: var(--radius-sm); width: 38px; height: 38px;
+          color: var(--ink-2); cursor: pointer; font-size: 1rem;
+        }
+        .breadcrumb {
+          display: flex; align-items: center; gap: 8px;
+          font-size: 0.85rem; color: var(--muted); min-width: 0;
+        }
+        .breadcrumb .crumb-root { font-weight: 500; }
+        .breadcrumb i { font-size: 0.6rem; }
+        .breadcrumb strong { color: var(--ink); font-weight: 600; }
+
+        .topbar-actions { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+        .status-chip {
+          display: inline-flex; align-items: center; gap: 8px;
+          padding: 6px 12px; border-radius: 999px;
+          background-color: var(--surface-alt); border: 1px solid var(--line);
+          font-size: 0.76rem; font-weight: 500; color: var(--ink-2);
+          white-space: nowrap;
+        }
+        .status-dot {
+          width: 7px; height: 7px; border-radius: 50%;
+          background-color: var(--gold-500); flex-shrink: 0;
+        }
+        .status-chip.is-online .status-dot { background-color: var(--success); }
+        .status-chip.is-offline .status-dot { background-color: var(--danger); }
+        .clock { font-variant-numeric: tabular-nums; }
+        .user-chip {
+          display: flex; align-items: center; gap: 10px;
+          padding: 5px 12px 5px 5px; border-radius: 999px;
+          background-color: var(--surface-alt); border: 1px solid var(--line);
+        }
+        .user-avatar {
+          width: 30px; height: 30px; border-radius: 50%;
+          background: linear-gradient(135deg, var(--brand-600), var(--brand-800));
+          color: #fff; display: grid; place-items: center;
+          font-size: 0.72rem; font-weight: 600; letter-spacing: 0.02em;
+        }
+        .user-meta { line-height: 1.25; }
+        .user-meta b { display: block; font-size: 0.79rem; font-weight: 600; }
+        .user-meta span { font-size: 0.68rem; color: var(--muted); }
+
+        /* ============ CONTEÚDO ============ */
+        .main-content { padding: 30px 28px 40px; width: 100%; max-width: 1440px; margin: 0 auto; }
+        .page-section { display: none; animation: fadeIn 0.35s ease; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .main-header { margin-bottom: 26px; }
+        .eyebrow {
+          display: block; font-size: 0.68rem; font-weight: 600;
+          letter-spacing: 0.16em; text-transform: uppercase;
+          color: var(--gold-600); margin-bottom: 8px;
+        }
+        .main-header h1 { font-size: 1.65rem; font-weight: 600; letter-spacing: -0.01em; }
+        .main-header p { color: var(--muted); font-size: 0.92rem; margin-top: 4px; }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; margin-bottom: 26px; }
+        .content-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-bottom: 22px; }
+        .single-column-grid { display: grid; grid-template-columns: 1fr; gap: 22px; }
+
+        /* ============ CARDS ============ */
+        .card {
+          background-color: var(--surface);
+          border: 1px solid var(--line);
+          border-radius: var(--radius);
+          padding: 24px;
+          box-shadow: var(--shadow-sm);
+          transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .card:hover { border-color: var(--line-strong); box-shadow: var(--shadow-md); }
+        .card > h3 {
+          display: flex; align-items: center; gap: 11px;
+          font-size: 1rem; font-weight: 600; letter-spacing: -0.005em;
+          padding-bottom: 14px; margin-bottom: 16px;
+          border-bottom: 1px solid var(--line);
+        }
+        .card > h3 i {
+          display: grid; place-items: center; flex-shrink: 0;
+          width: 30px; height: 30px; border-radius: var(--radius-sm);
+          background-color: var(--brand-050); color: var(--brand-600);
+          font-size: 0.82rem;
+        }
+        .card p { color: var(--ink-2); font-size: 0.9rem; line-height: 1.65; margin-bottom: 14px; }
+        .card ul li {
+          display: flex; align-items: flex-start; gap: 11px;
+          padding: 9px 0; font-size: 0.88rem; line-height: 1.6; color: var(--ink-2);
+        }
+        .card ul li + li { border-top: 1px solid var(--line); }
+        .card ul li > i { color: var(--brand-500); margin-top: 4px; font-size: 0.78rem; flex-shrink: 0; }
+        .card ul li strong { color: var(--ink); font-weight: 600; }
+        .card ul.list-warn li > i { color: var(--gold-600); }
+
+        /* ============ HERO ============ */
+        .hero-card {
+          position: relative; overflow: hidden;
+          padding: 52px 40px;
+          border-radius: var(--radius);
+          background:
+            linear-gradient(110deg, rgba(13, 30, 21, 0.94) 0%, rgba(19, 41, 28, 0.86) 55%, rgba(35, 92, 60, 0.72) 100%),
+            url('img/bg-exercito.jpg') no-repeat center center;
+          background-size: cover;
+          color: #f2f6f3;
+          border: 1px solid var(--brand-700);
+        }
+        .hero-card::after {
+          content: ''; position: absolute; inset: auto 0 0 0; height: 3px;
+          background: linear-gradient(90deg, var(--gold-600), var(--gold-400), transparent);
+        }
+        .hero-inner { max-width: 780px; }
+        .hero-crest { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; }
+        .hero-crest img { height: 54px; width: auto; object-fit: contain; }
+        .hero-crest .crest-divider { width: 1px; height: 40px; background-color: rgba(255, 255, 255, 0.22); }
+        .hero-crest .crest-text {
+          font-size: 0.7rem; font-weight: 500; letter-spacing: 0.1em;
+          text-transform: uppercase; color: var(--gold-400); line-height: 1.7;
+        }
+        .hero-card h1 {
+          font-size: 2.1rem; font-weight: 600; line-height: 1.25;
+          letter-spacing: -0.02em; margin-bottom: 14px;
+        }
+        .hero-card p { font-size: 1rem; line-height: 1.7; color: rgba(242, 246, 243, 0.82); }
+        .hero-tags { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
+        .hero-tags span {
+          display: inline-flex; align-items: center; gap: 8px;
+          padding: 7px 14px; border-radius: 999px;
+          background-color: rgba(255, 255, 255, 0.09);
+          border: 1px solid rgba(255, 255, 255, 0.16);
+          font-size: 0.78rem; font-weight: 500;
+        }
+        .hero-tags i { color: var(--gold-400); font-size: 0.72rem; }
+
+        .section-title {
+          display: flex; align-items: baseline; gap: 14px;
+          margin: 34px 0 18px;
+        }
+        .section-title h2 { font-size: 1.15rem; font-weight: 600; white-space: nowrap; }
+        .section-title .rule { flex: 1; height: 1px; background-color: var(--line-strong); }
+
+        /* ============ STAT CARDS ============ */
+        .stat-card {
+          position: relative; overflow: hidden;
+          display: flex; align-items: center; gap: 18px;
+          background-color: var(--surface);
+          border: 1px solid var(--line);
+          border-radius: var(--radius);
+          padding: 22px 24px;
+          box-shadow: var(--shadow-sm);
+        }
+        .stat-card::before {
+          content: ''; position: absolute; inset: 0 auto 0 0; width: 3px;
+          background-color: var(--brand-500);
+        }
+        .stat-card.accent-gold::before { background-color: var(--gold-500); }
+        .stat-card.accent-dark::before { background-color: var(--brand-800); }
+        .stat-icon {
+          display: grid; place-items: center; flex-shrink: 0;
+          width: 48px; height: 48px; border-radius: 10px;
+          background-color: var(--brand-050); color: var(--brand-600);
+          font-size: 1.15rem;
+        }
+        .stat-title {
+          display: block; font-size: 0.7rem; font-weight: 600;
+          letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted);
+        }
+        .stat-value {
+          font-size: 1.9rem; font-weight: 700; line-height: 1.2;
+          font-variant-numeric: tabular-nums; letter-spacing: -0.02em;
+        }
+
+        /* ============ FORMULÁRIOS ============ */
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .form-group { margin-bottom: 0; }
+        .form-group.span-2 { grid-column: 1 / -1; }
+        .form-group label {
+          display: block; font-size: 0.76rem; font-weight: 600;
+          letter-spacing: 0.04em; text-transform: uppercase;
+          color: var(--ink-2); margin-bottom: 6px;
+        }
+        input, select {
+          width: 100%; padding: 10px 13px;
+          border: 1px solid var(--line-strong); border-radius: var(--radius-sm);
+          font-family: inherit; font-size: 0.9rem; color: var(--ink);
+          background-color: var(--surface);
+          transition: border-color 0.18s ease, box-shadow 0.18s ease;
+        }
+        input::placeholder { color: #9caaa2; }
+        input:focus, select:focus {
+          border-color: var(--brand-500);
+          box-shadow: 0 0 0 3px rgba(44, 122, 75, 0.14);
+          outline: none;
+        }
+        input:disabled { background-color: var(--surface-alt); color: var(--muted); cursor: not-allowed; }
+
+        .button-group { display: flex; gap: 9px; flex-wrap: wrap; }
+        .form-actions { margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--line); }
+        .btn {
+          display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+          padding: 10px 17px; border-radius: var(--radius-sm);
+          border: 1px solid var(--line-strong); background-color: var(--surface);
+          color: var(--ink-2); font-family: inherit; font-size: 0.84rem; font-weight: 600;
+          cursor: pointer; transition: all 0.18s ease; white-space: nowrap;
+        }
+        .btn i { font-size: 0.82rem; }
+        .btn:hover { background-color: var(--surface-alt); border-color: var(--muted); color: var(--ink); }
+        .btn:active { transform: translateY(1px); }
+        .btn-primary { background-color: var(--brand-700); border-color: var(--brand-700); color: #fff; }
+        .btn-primary:hover { background-color: var(--brand-800); border-color: var(--brand-800); color: #fff; }
+        .btn-save { background-color: var(--brand-500); border-color: var(--brand-500); color: #fff; }
+        .btn-save:hover { background-color: var(--brand-600); border-color: var(--brand-600); color: #fff; }
+        .btn-success { background-color: var(--success); border-color: var(--success); color: #fff; }
+        .btn-success:hover { background-color: #145635; border-color: #145635; color: #fff; }
+        .btn-danger { background-color: var(--danger); border-color: var(--danger); color: #fff; }
+        .btn-danger:hover { background-color: #971e14; border-color: #971e14; color: #fff; }
+        .btn-icon { padding: 8px 11px; }
+        .btn-icon i { margin: 0; }
+
+        .confirmation-message {
+          margin-top: 14px; font-size: 0.85rem; font-weight: 500;
+          color: var(--success); opacity: 0; height: 0;
+          transition: opacity 0.4s ease;
+        }
+        .confirmation-message.show { opacity: 1; height: auto; }
+
+        /* ============ TABELAS ============ */
+        .table-container { overflow-x: auto; margin: 0 -24px -24px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td {
+          padding: 12px 16px; text-align: left; vertical-align: middle;
+          border-bottom: 1px solid var(--line); font-size: 0.87rem;
+        }
+        th {
+          background-color: var(--surface-alt);
+          border-top: 1px solid var(--line);
+          font-size: 0.7rem; font-weight: 600;
+          letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);
+          white-space: nowrap;
+        }
+        tbody tr { transition: background-color 0.15s ease; }
+        tbody tr:hover { background-color: var(--surface-alt); }
+        tbody tr:last-child td { border-bottom: none; }
+        td.cell-mono { font-variant-numeric: tabular-nums; color: var(--ink-2); white-space: nowrap; }
+        td .avatar {
+          height: 38px; width: 38px; object-fit: cover; border-radius: 50%;
+          border: 2px solid var(--line); background-color: var(--surface-alt);
+        }
+        td .button-group { margin-top: 0; }
+        .table-loader { text-align: center; padding: 28px 16px; color: var(--muted); font-size: 0.85rem; }
+
+        .badge {
+          display: inline-flex; align-items: center; gap: 7px;
+          padding: 4px 11px; border-radius: 999px;
+          font-size: 0.72rem; font-weight: 600; letter-spacing: 0.03em;
+        }
+        .badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background-color: currentColor; }
+        .badge-in { background-color: var(--success-soft); color: var(--success); }
+        .badge-out { background-color: var(--danger-soft); color: var(--danger); }
+
+        .toolbar { display: flex; gap: 9px; margin-bottom: 18px; flex-wrap: wrap; }
+        .toolbar .search-field { position: relative; flex: 1; min-width: 180px; }
+        .toolbar .search-field i {
+          position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
+          color: var(--muted); font-size: 0.8rem; pointer-events: none;
+        }
+        .toolbar .search-field input { padding-left: 36px; }
+
+        /* ============ CÂMERA ============ */
+        .camera-view { display: flex; flex-direction: column; }
+        .camera-frame {
+          position: relative; border-radius: var(--radius-sm); overflow: hidden;
+          background-color: #0b1410; border: 1px solid var(--line-strong);
+        }
+        .camera-frame video { display: block; width: 100%; min-height: 260px; background-color: #0b1410; }
+        .camera-frame::after {
+          content: 'AO VIVO'; position: absolute; top: 10px; left: 10px;
+          padding: 3px 9px; border-radius: 4px;
+          background-color: rgba(11, 20, 16, 0.72);
+          color: rgba(255, 255, 255, 0.85);
+          font-size: 0.62rem; font-weight: 600; letter-spacing: 0.12em;
+        }
+        .camera-view .button-group { margin-top: 16px; }
+        .card-footer {
+          margin-top: 16px; padding: 16px;
+          background-color: var(--surface-alt);
+          border: 1px solid var(--line);
+          border-radius: var(--radius-sm);
+          text-align: center; font-size: 0.92rem; font-weight: 600; color: var(--ink-2);
+          transition: all 0.25s ease;
+        }
+        .card-footer.is-ok { background-color: var(--success-soft); border-color: #bfe0cd; color: var(--success); }
+        .card-footer.is-error { background-color: var(--danger-soft); border-color: #f1cfc9; color: var(--danger); }
+        #capturedContainer { margin-top: 16px; }
+        #capturedContainer img {
+          max-width: 180px; border-radius: var(--radius-sm);
+          border: 1px solid var(--line-strong);
+        }
+        .capture-hint { font-size: 0.8rem; color: var(--muted); margin: 16px 0 0; }
+
+        /* ============ RODAPÉ INSTITUCIONAL ============ */
+        .site-footer {
+          margin-top: auto;
+          background-color: var(--brand-900);
+          color: rgba(232, 239, 233, 0.72);
+          border-top: 3px solid var(--gold-600);
+        }
+        .footer-inner {
+          max-width: 1440px; margin: 0 auto; padding: 28px;
+          display: flex; align-items: center; gap: 26px; flex-wrap: wrap;
+        }
+        .footer-crest { display: flex; align-items: center; gap: 14px; }
+        .footer-crest img { height: 38px; width: auto; object-fit: contain; opacity: 0.95; }
+        .footer-identity { line-height: 1.6; }
+        .footer-identity b {
+          display: block; color: #fff; font-size: 0.92rem;
+          font-weight: 600; letter-spacing: 0.03em;
+        }
+        .footer-identity span { font-size: 0.76rem; }
+        .footer-notice {
+          margin-left: auto; text-align: right; font-size: 0.74rem; line-height: 1.7;
+        }
+        .footer-notice .restricted {
+          display: inline-flex; align-items: center; gap: 7px;
+          color: var(--gold-400); font-weight: 500;
+        }
+        .footer-bottom {
+          border-top: 1px solid rgba(255, 255, 255, 0.09);
+          padding: 14px 28px;
+          font-size: 0.72rem; color: rgba(232, 239, 233, 0.45);
+          text-align: center;
+        }
+
+        /* ============ NOTIFICAÇÕES ============ */
+        .notification {
+          position: fixed; bottom: 24px; right: 24px; z-index: 200;
+          display: flex; align-items: center; gap: 11px;
+          padding: 14px 18px; border-radius: var(--radius-sm);
+          background-color: var(--surface);
+          border: 1px solid var(--line-strong);
+          border-left: 3px solid var(--brand-500);
+          color: var(--ink); font-size: 0.88rem; font-weight: 500;
+          box-shadow: 0 8px 28px rgba(13, 30, 21, 0.14);
+          opacity: 0; transform: translateY(14px);
+          transition: all 0.32s ease;
+          max-width: 340px;
+        }
+        .notification.show { opacity: 1; transform: translateY(0); }
+        .notification::before {
+          font-family: 'Font Awesome 6 Free'; font-weight: 900;
+          content: '\f058'; color: var(--brand-500); font-size: 1rem;
+        }
+        .notification.error { border-left-color: var(--danger); }
+        .notification.error::before { content: '\f06a'; color: var(--danger); }
+
+        .sidebar-overlay {
+          display: none; position: fixed; inset: 0; z-index: 25;
+          background-color: rgba(13, 30, 21, 0.5);
+        }
+        .sidebar-overlay.show { display: block; }
+
+        /* ============ RESPONSIVO ============ */
+        @media (max-width: 1100px) {
+            .form-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 980px) {
+            .app { grid-template-columns: 1fr; }
+            .sidebar {
+              position: fixed; top: 0; left: 0; z-index: 30;
+              width: 268px; transform: translateX(-100%);
+              transition: transform 0.28s ease;
+            }
+            .sidebar.open { transform: translateX(0); }
+            .menu-toggle { display: grid; place-items: center; }
+            .content-grid { grid-template-columns: 1fr; }
+            .main-content { padding: 22px 18px 32px; }
+            .topbar { padding: 0 18px; }
+            .hero-card { padding: 36px 26px; }
+            .hero-card h1 { font-size: 1.65rem; }
+            .footer-inner, .footer-bottom { padding: 24px 18px; }
+            .footer-notice { margin-left: 0; text-align: left; width: 100%; }
+        }
+        @media (max-width: 640px) {
+            .user-meta, .clock { display: none; }
+            .status-chip .status-label { display: none; }
+            .status-chip { padding: 8px; }
+            .user-chip { padding: 5px; }
+            .table-container { margin: 0 -24px -24px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <img src="img/logo-eb.png" alt="Exército Brasileiro" class="sidebar-logo">
+                <div class="brand-text">
+                    <div class="brand-name">SiSREx</div>
+                    <span class="brand-sub">Exército Brasileiro</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-group">
+                    <p class="nav-group-label">Geral</p>
+                    <a href="#inicio" class="nav-link active" data-page="inicioUI">
+                        <i class="fas fa-shield-halved"></i> <span>Apresentação</span>
+                    </a>
+                    <a href="#dashboard" class="nav-link" data-page="dashboardUI">
+                        <i class="fas fa-chart-line"></i> <span>Painel de Controle</span>
+                    </a>
+                </div>
+                <div class="nav-group">
+                    <p class="nav-group-label">Operação</p>
+                    <a href="#reconhecimento" class="nav-link" data-page="reconhecimentoUI">
+                        <i class="fas fa-camera"></i> <span>Reconhecimento</span>
+                    </a>
+                    <a href="#cadastro" class="nav-link" data-page="cadastroUI">
+                        <i class="fas fa-id-card"></i> <span>Cadastros</span>
+                    </a>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="#" id="logoutBtn" class="nav-link">
+                    <i class="fas fa-arrow-right-from-bracket"></i> <span>Encerrar sessão</span>
+                </a>
+                <p class="sidebar-version">SiSREx · Versão 1.0<br>Acesso restrito e monitorado</p>
+            </div>
+        </aside>
+
+        <div class="app-main">
+            <header class="topbar">
+                <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <nav class="breadcrumb" aria-label="Localização">
+                    <span class="crumb-root">SiSREx</span>
+                    <i class="fas fa-chevron-right"></i>
+                    <strong id="pageTitle">Apresentação</strong>
+                </nav>
+                <div class="topbar-actions">
+                    <span class="status-chip" id="systemStatus">
+                        <span class="status-dot"></span>
+                        <span class="status-label">Inicializando</span>
+                    </span>
+                    <span class="status-chip clock" id="clock">--:--:--</span>
+                    <div class="user-chip">
+                        <span class="user-avatar">ADM</span>
+                        <span class="user-meta">
+                            <b>Administrador</b>
+                            <span>Sessão ativa</span>
+                        </span>
+                    </div>
+                </div>
+            </header>
+
+            <main class="main-content">
+
+                <section id="inicioUI" class="page-section">
+                    <div class="single-column-grid">
+                        <div class="hero-card">
+                            <div class="hero-inner">
+                                <div class="hero-crest">
+                                    <img src="img/cpor-logo.png" alt="CPOR">
+                                    <span class="crest-divider"></span>
+                                    <img src="img/logo-eb.png" alt="Exército Brasileiro">
+                                    <span class="crest-divider"></span>
+                                    <span class="crest-text">
+                                        Exército Brasileiro<br>
+                                        Centro de Preparação de Oficiais da Reserva
+                                    </span>
+                                </div>
+                                <h1>Sistema Inteligente de Controle e Monitoramento de Acesso</h1>
+                                <p>Solução moderna, segura e auditável para o controle de entrada e saída de militares e visitantes, empregando reconhecimento facial para garantir agilidade, precisão e segurança no perímetro da Organização Militar.</p>
+                                <div class="hero-tags">
+                                    <span><i class="fas fa-user-check"></i> Reconhecimento facial</span>
+                                    <span><i class="fas fa-clock"></i> Registro automático</span>
+                                    <span><i class="fas fa-file-shield"></i> Auditoria completa</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="section-title">
+                            <h2>Contexto e finalidade</h2>
+                            <span class="rule"></span>
+                        </div>
+
+                        <div class="content-grid">
+                            <div class="card">
+                                <h3><i class="fas fa-triangle-exclamation"></i> Problema identificado</h3>
+                                <ul class="list-warn">
+                                    <li><i class="fas fa-circle-xmark"></i>Falta de precisão no registro de entrada e saída de militares.</li>
+                                    <li><i class="fas fa-circle-xmark"></i>Processos manuais sujeitos a erro.</li>
+                                    <li><i class="fas fa-circle-xmark"></i>Vulnerabilidade à entrada de pessoas não autorizadas.</li>
+                                    <li><i class="fas fa-circle-xmark"></i>Dificuldade de rastreamento em tempo real.</li>
+                                    <li><i class="fas fa-circle-xmark"></i>Ausência de dados históricos organizados.</li>
+                                </ul>
+                            </div>
+                            <div class="card">
+                                <h3><i class="fas fa-bullseye"></i> Objetivo principal</h3>
+                                <p>Implementar um sistema inteligente e seguro que automatize o controle de acesso de militares e visitantes na Organização Militar.</p>
+                                <ul>
+                                    <li><i class="fas fa-circle-check"></i>Registrar automaticamente horários de entrada e saída.</li>
+                                    <li><i class="fas fa-circle-check"></i>Garantir que apenas pessoas autorizadas tenham acesso.</li>
+                                    <li><i class="fas fa-circle-check"></i>Gerar relatórios para uso administrativo e disciplinar.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="section-title">
+                            <h2>Funcionamento e arquitetura</h2>
+                            <span class="rule"></span>
+                        </div>
+
+                        <div class="content-grid">
+                            <div class="card">
+                                <h3><i class="fas fa-gears"></i> Como o sistema funciona</h3>
+                                <ul>
+                                    <li><i class="fas fa-user-check"></i>A identificação pessoal é realizada por <strong>reconhecimento facial</strong>.</li>
+                                    <li><i class="fas fa-door-open"></i>O acesso pode ser liberado por catracas integradas a um controlador de acesso <strong>IDFace</strong>.</li>
+                                    <li><i class="fas fa-database"></i>Ao fazer o reconhecimento, o sistema verifica o cadastro no banco de dados, libera ou nega o acesso e registra <strong>nome, nome de guerra, posto e horário</strong>.</li>
+                                </ul>
+                            </div>
+                            <div class="card">
+                                <h3><i class="fas fa-laptop-code"></i> Tecnologias utilizadas</h3>
+                                <ul>
+                                    <li><i class="fas fa-code"></i><strong>Frontend:</strong> HTML5, CSS3 e JavaScript (face-api.js) para uma interface interativa e responsiva.</li>
+                                    <li><i class="fas fa-network-wired"></i><strong>Backend:</strong> Node.js com Express.js para uma API robusta e segura.</li>
+                                    <li><i class="fas fa-database"></i><strong>Banco de dados:</strong> arquivos JSON para armazenamento de logs e perfis, com controle de permissões.</li>
+                                    <li><i class="fas fa-plug-circle-xmark"></i><strong>Operação offline:</strong> validação local com backup para casos de queda de rede.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="section-title">
+                            <h2>Resultados esperados</h2>
+                            <span class="rule"></span>
+                        </div>
+
+                        <div class="content-grid">
+                            <div class="card">
+                                <h3><i class="fas fa-star"></i> Benefícios para a Organização</h3>
+                                <ul>
+                                    <li><i class="fas fa-shield-halved"></i>Maior controle e segurança no perímetro.</li>
+                                    <li><i class="fas fa-check-double"></i>Redução de falhas humanas.</li>
+                                    <li><i class="fas fa-bolt"></i>Agilidade na liberação de acessos.</li>
+                                    <li><i class="fas fa-clock-rotate-left"></i>Histórico organizado para fins administrativos e disciplinares.</li>
+                                </ul>
+                            </div>
+                            <div class="card">
+                                <h3><i class="fas fa-lock"></i> Segurança e confiabilidade</h3>
+                                <ul>
+                                    <li><i class="fas fa-user-secret"></i>O reconhecimento facial garante que o acesso seja pessoal e intransferível.</li>
+                                    <li><i class="fas fa-file-invoice"></i>Auditoria completa de todos os registros de acesso.</li>
+                                    <li><i class="fas fa-floppy-disk"></i>Backup automático dos dados para garantir a integridade das informações.</li>
+                                    <li><i class="fas fa-wifi"></i>Capacidade de operação em modo offline temporário para emergências.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="dashboardUI" class="page-section">
+                    <div class="main-header">
+                        <span class="eyebrow">Visão geral</span>
+                        <h1>Painel de Controle</h1>
+                        <p>Indicadores consolidados e movimentações mais recentes.</p>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-card accent-dark">
+                            <span class="stat-icon"><i class="fas fa-users"></i></span>
+                            <div class="stat-info">
+                                <span class="stat-title">Total de cadastros</span>
+                                <span class="stat-value" id="totalCadastros">0</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-icon"><i class="fas fa-arrow-right-to-bracket"></i></span>
+                            <div class="stat-info">
+                                <span class="stat-title">Entradas hoje</span>
+                                <span class="stat-value" id="entradasHoje">0</span>
+                            </div>
+                        </div>
+                        <div class="stat-card accent-gold">
+                            <span class="stat-icon"><i class="fas fa-arrow-right-from-bracket"></i></span>
+                            <div class="stat-info">
+                                <span class="stat-title">Saídas hoje</span>
+                                <span class="stat-value" id="saidasHoje">0</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3><i class="fas fa-list-check"></i> Movimentações recentes</h3>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr><th>Data / hora</th><th>Nome</th><th>Posto / graduação</th><th>Movimento</th></tr>
+                                </thead>
+                                <tbody id="logTableDashboard"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="cadastroUI" class="page-section">
+                    <div class="main-header">
+                        <span class="eyebrow">Efetivo</span>
+                        <h1>Gerenciamento de Cadastros</h1>
+                        <p>Inclua, edite ou exclua registros biométricos do sistema.</p>
+                    </div>
+                    <div class="content-grid">
+                        <div class="card">
+                            <h3><i class="fas fa-user-plus"></i> <span id="form-title">Registrar nova pessoa</span></h3>
+                            <form id="savePersonForm">
+                                <div class="form-grid">
+                                    <div class="form-group"><label for="matricula">Matrícula</label><input id="matricula" placeholder="000000000-0"></div>
+                                    <div class="form-group"><label for="posto">Posto / graduação</label><input id="posto" placeholder="Ex.: 1º Ten"></div>
+                                    <div class="form-group span-2"><label for="nome">Nome completo</label><input id="nome" placeholder="Nome civil completo"></div>
+                                    <div class="form-group"><label for="nomeGuerra">Nome de guerra</label><input id="nomeGuerra" placeholder="Nome de guerra"></div>
+                                    <div class="form-group"><label for="cpf">CPF</label><input id="cpf" placeholder="000.000.000-00"></div>
+                                </div>
+                                <div class="form-actions">
+                                    <div class="button-group">
+                                        <button type="button" id="startCam" class="btn"><i class="fas fa-video"></i> Abrir câmera</button>
+                                        <button type="button" id="captureBtn" class="btn"><i class="fas fa-camera-retro"></i> Capturar</button>
+                                        <button type="button" id="savePerson" class="btn btn-save"><i class="fas fa-floppy-disk"></i> Salvar</button>
+                                        <button type="button" id="clearFormBtn" class="btn"><i class="fas fa-eraser"></i> Limpar</button>
+                                    </div>
+                                    <div class="confirmation-message" id="confirmationMessage"></div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="card camera-view">
+                            <h3><i class="fas fa-camera"></i> Captura biométrica</h3>
+                            <div class="camera-frame">
+                                <video id="video" autoplay muted playsinline></video>
+                            </div>
+                            <canvas id="canvas" style="display:none;"></canvas>
+                            <p class="capture-hint">Posicione o rosto centralizado, com iluminação frontal e sem acessórios que cubram a face.</p>
+                            <div id="capturedContainer"></div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3><i class="fas fa-rectangle-list"></i> Cadastros registrados</h3>
+                        <div class="table-container">
+                            <table>
+                                <thead><tr><th>Matrícula</th><th>Posto / graduação</th><th>Nome</th><th>Foto</th><th>Ações</th></tr></thead>
+                                <tbody id="peopleTable"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="reconhecimentoUI" class="page-section">
+                    <div class="main-header">
+                        <span class="eyebrow">Posto de acesso</span>
+                        <h1>Reconhecimento Facial</h1>
+                        <p>Identifique o militar pela câmera e registre a movimentação.</p>
+                    </div>
+                    <div class="content-grid">
+                        <div class="card camera-view">
+                            <h3><i class="fas fa-video"></i> Câmera de identificação</h3>
+                            <div class="camera-frame">
+                                <video id="recognitionVideo" autoplay muted playsinline></video>
+                            </div>
+                            <div id="recognitionResult" class="card-footer">Aguardando identificação…</div>
+                            <div class="button-group">
+                                <button id="startRecognition" class="btn btn-primary"><i class="fas fa-video"></i> Ligar câmera</button>
+                                <button id="entranceBtn" class="btn btn-success"><i class="fas fa-arrow-right-to-bracket"></i> Registrar entrada</button>
+                                <button id="exitBtn" class="btn btn-danger"><i class="fas fa-arrow-right-from-bracket"></i> Registrar saída</button>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <h3><i class="fas fa-clipboard-list"></i> Registros de acesso</h3>
+                            <div class="toolbar">
+                                <div class="search-field">
+                                    <i class="fas fa-magnifying-glass"></i>
+                                    <input id="searchLog" placeholder="Pesquisar por nome…">
+                                </div>
+                                <button id="exportCSV" class="btn"><i class="fas fa-file-csv"></i> Exportar</button>
+                                <button id="clearLogs" class="btn"><i class="fas fa-trash"></i> Limpar</button>
+                            </div>
+                            <div class="table-container">
+                                <table>
+                                    <thead><tr><th>Data / hora</th><th>Nome</th><th>Posto / graduação</th><th>Movimento</th></tr></thead>
+                                    <tbody id="logTable"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+
+            <footer class="site-footer">
+                <div class="footer-inner">
+                    <div class="footer-crest">
+                        <img src="img/logo-eb.png" alt="Exército Brasileiro">
+                        <img src="img/cpor-logo.png" alt="CPOR">
+                    </div>
+                    <div class="footer-identity">
+                        <b>SiSREx — Sistema Inteligente de Controle e Monitoramento de Acesso</b>
+                        <span>Exército Brasileiro · Centro de Preparação de Oficiais da Reserva</span>
+                    </div>
+                    <div class="footer-notice">
+                        <span class="restricted"><i class="fas fa-lock"></i> Sistema de uso restrito</span><br>
+                        Todos os acessos são registrados e auditados.
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    SiSREx · Versão 1.0 — Documento de uso interno. Reprodução sujeita a autorização.
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- UTILITÁRIOS ---
+            function escapeHtml(value) {
+                return String(value ?? '').replace(/[&<>"']/g, ch => ({
+                    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+                })[ch]);
+            }
+
+            function showNotification(message, type = 'success') {
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                notification.innerText = message;
+                document.body.appendChild(notification);
+
+                setTimeout(() => {
+                    notification.classList.add('show');
+                }, 10);
+
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                    setTimeout(() => {
+                        document.body.removeChild(notification);
+                    }, 500);
+                }, 3000);
+            }
+
+            function setSystemStatus(label, state) {
+                const chip = document.getElementById('systemStatus');
+                chip.className = `status-chip ${state}`;
+                chip.querySelector('.status-label').innerText = label;
+            }
+
+            // --- RELÓGIO DO POSTO ---
+            const clock = document.getElementById('clock');
+            function tick() {
+                clock.innerText = new Date().toLocaleTimeString('pt-BR');
+            }
+            tick();
+            setInterval(tick, 1000);
+
+            // --- NAVEGAÇÃO ---
+            const navLinks = document.querySelectorAll('.nav-link');
+            const pageSections = document.querySelectorAll('.page-section');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const sidebar = document.getElementById('sidebar');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            const pageTitle = document.getElementById('pageTitle');
+
+            const pageTitles = {
+                inicioUI: 'Apresentação',
+                dashboardUI: 'Painel de Controle',
+                cadastroUI: 'Cadastros',
+                reconhecimentoUI: 'Reconhecimento Facial'
+            };
+
+            function closeSidebar() {
+                sidebar.classList.remove('open');
+                sidebarOverlay.classList.remove('show');
+            }
+
+            document.getElementById('menuToggle').onclick = () => {
+                sidebar.classList.toggle('open');
+                sidebarOverlay.classList.toggle('show', sidebar.classList.contains('open'));
+            };
+            sidebarOverlay.onclick = closeSidebar;
+
+            function showPage(pageId) {
+                pageSections.forEach(section => {
+                    section.style.display = 'none';
+                });
+
+                const activePage = document.getElementById(pageId);
+                if (activePage) {
+                    activePage.style.display = 'block';
+                }
+
+                navLinks.forEach(link => {
+                    link.classList.toggle('active', link.dataset.page === pageId);
+                });
+
+                if (pageTitles[pageId]) {
+                    pageTitle.innerText = pageTitles[pageId];
+                    document.title = `${pageTitles[pageId]} — SiSREx`;
+                }
+                closeSidebar();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const pageId = link.dataset.page;
+                    if (pageId) {
+                        showPage(pageId);
+                        if (pageId === 'dashboardUI') updateDashboardStats();
+                    }
+                });
+            });
+
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    window.location.href = 'index.html';
+                });
+            }
+
+            // --- LÓGICA DO FACE-API ---
+            let modelsLoaded = false;
+            async function loadModels() {
+                setSystemStatus('Carregando IA', '');
+                try {
+                    await faceapi.nets.tinyFaceDetector.loadFromUri('./models');
+                    await faceapi.nets.faceLandmark68Net.loadFromUri('./models');
+                    await faceapi.nets.faceRecognitionNet.loadFromUri('./models');
+                    modelsLoaded = true;
+                    setSystemStatus('Sistema operacional', 'is-online');
+                    console.log("Modelos do Face-API carregados.");
+                } catch (error) {
+                    console.error("Erro ao carregar modelos do Face-API:", error);
+                    setSystemStatus('Falha na IA', 'is-offline');
+                    showNotification("Falha ao carregar modelos de IA.", "error");
+                }
+            }
+
+            // --- LÓGICA DE CADASTRO ---
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('canvas');
+            const capturedContainer = document.getElementById('capturedContainer');
+            const savePersonForm = document.getElementById('savePersonForm');
+            const formTitle = document.getElementById('form-title');
+            const confirmationMessage = document.getElementById('confirmationMessage');
+            let stream;
+
+            function clearForm() {
+                savePersonForm.reset();
+                capturedContainer.innerHTML = '';
+                capturedContainer.dataset.photo = '';
+                document.getElementById('matricula').disabled = false;
+                formTitle.innerText = 'Registrar nova pessoa';
+            }
+
+            document.getElementById('clearFormBtn').onclick = clearForm;
+
+            document.getElementById('startCam').onclick = async () => {
+                if (stream) return;
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({ video: { width: 640 } });
+                    video.srcObject = stream;
+                } catch (err) {
+                    console.error("Erro ao acessar a câmera:", err);
+                    showNotification("Câmera não encontrada ou permissão negada.", "error");
+                }
+            };
+
+            document.getElementById('captureBtn').onclick = () => {
+                if (!stream) { showNotification('Abra a câmera primeiro.', 'error'); return; }
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                canvas.getContext('2d').drawImage(video, 0, 0);
+                const data = canvas.toDataURL('image/jpeg', 0.9);
+                capturedContainer.innerHTML = `<img src="${data}" alt="Foto capturada">`;
+                capturedContainer.dataset.photo = data;
+            };
+
+            document.getElementById('savePerson').onclick = async () => {
+                const matriculaInput = document.getElementById('matricula');
+                const matricula = matriculaInput.value.trim();
+                const nome = document.getElementById('nome').value.trim();
+                const photo = capturedContainer.dataset.photo;
+
+                if (!matricula || !nome || !photo) { showNotification('Preencha todos os campos e capture uma foto.', 'error'); return; }
+                if (!modelsLoaded) { showNotification('Modelos de IA ainda carregando, aguarde.', 'error'); return; }
+
+                const img = new Image();
+                img.src = photo;
+                img.onload = async () => {
+                    const detection = await faceapi.detectSingleFace(img, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
+
+                    let people = await fetch('/people').then(res => res.json());
+                    const index = people.findIndex(p => p.matricula === matricula);
+
+                    const personData = {
+                        matricula,
+                        posto: document.getElementById('posto').value.trim(),
+                        nome,
+                        nomeGuerra: document.getElementById('nomeGuerra').value.trim(),
+                        cpf: document.getElementById('cpf').value.trim(),
+                        photo,
+                        descriptor: detection ? Array.from(detection.descriptor) : (index >= 0 ? people[index].descriptor : null)
+                    };
+
+                    if (!personData.descriptor) {
+                        showNotification('Rosto não detectado na foto. Tente novamente.', 'error');
+                        if (index < 0) return;
+                    }
+
+                    if (index >= 0) { people[index] = personData; } else { people.push(personData); }
+
+                    await fetch('/people', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(people)
+                    });
+
+                    showNotification('Cadastro salvo com sucesso!');
+                    loadPeople();
+                    clearForm();
+                };
+            };
+
+            async function loadPeople() {
+                const tbody = document.getElementById('peopleTable');
+                tbody.innerHTML = `<tr><td colspan="5" class="table-loader">Carregando cadastros…</td></tr>`;
+
+                const people = await fetch('/people').then(res => res.json());
+                tbody.innerHTML = '';
+
+                if (people.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" class="table-loader">Nenhum cadastro encontrado.</td></tr>`;
+                }
+
+                people.forEach(p => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td class="cell-mono">${escapeHtml(p.matricula)}</td>
+                        <td>${escapeHtml(p.posto)}</td>
+                        <td>${escapeHtml(p.nome)}</td>
+                        <td><img class="avatar" src="${p.photo}" alt="Foto de ${escapeHtml(p.nome)}"></td>
+                        <td>
+                            <div class="button-group">
+                                <button class="btn btn-icon btn-primary editBtn" title="Editar" data-matricula="${escapeHtml(p.matricula)}"><i class="fas fa-pen"></i></button>
+                                <button class="btn btn-icon btn-danger delBtn" title="Excluir" data-matricula="${escapeHtml(p.matricula)}"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+                document.querySelectorAll('.delBtn').forEach(b => {
+                    b.onclick = async (e) => {
+                        const matricula = e.currentTarget.dataset.matricula;
+                        if (confirm(`Deseja realmente excluir o cadastro de matrícula ${matricula}?`)) {
+                            let currentPeople = await fetch('/people').then(res => res.json());
+                            currentPeople = currentPeople.filter(p => p.matricula !== matricula);
+                            await fetch('/people', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(currentPeople)
+                            });
+                            loadPeople();
+                            showNotification('Cadastro excluído.');
+                        }
+                    };
+                });
+
+                document.querySelectorAll('.editBtn').forEach(b => {
+                    b.onclick = async (e) => {
+                        const matricula = e.currentTarget.dataset.matricula;
+                        const allPeople = await fetch('/people').then(res => res.json());
+                        const personToEdit = allPeople.find(p => p.matricula === matricula);
+
+                        if (personToEdit) {
+                            formTitle.innerText = `Editando: ${personToEdit.nome}`;
+                            document.getElementById('matricula').value = personToEdit.matricula;
+                            document.getElementById('posto').value = personToEdit.posto;
+                            document.getElementById('nome').value = personToEdit.nome;
+                            document.getElementById('nomeGuerra').value = personToEdit.nomeGuerra;
+                            document.getElementById('cpf').value = personToEdit.cpf;
+
+                            capturedContainer.innerHTML = `<img src="${personToEdit.photo}" alt="Foto atual">`;
+                            capturedContainer.dataset.photo = personToEdit.photo;
+
+                            document.getElementById('matricula').disabled = true;
+
+                            const cadastroCard = document.querySelector('#cadastroUI .card');
+                            cadastroCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    };
+                });
+
+                updateDashboardStats();
+            }
+
+            // --- LÓGICA DE RECONHECIMENTO ---
+            const recognitionVideo = document.getElementById('recognitionVideo');
+            const startRecognitionBtn = document.getElementById('startRecognition');
+            const recognitionResult = document.getElementById('recognitionResult');
+            let recognitionStream;
+
+            function setRecognitionResult(text, state = '') {
+                recognitionResult.className = `card-footer ${state}`;
+                recognitionResult.innerText = text;
+            }
+
+            startRecognitionBtn.onclick = async () => {
+                if (recognitionStream) {
+                    recognitionStream.getTracks().forEach(track => track.stop());
+                    recognitionStream = null;
+                    startRecognitionBtn.innerHTML = '<i class="fas fa-video"></i> Ligar câmera';
+                    setRecognitionResult('Câmera desligada.');
+                    return;
+                }
+                try {
+                    recognitionStream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    recognitionVideo.srcObject = recognitionStream;
+                    startRecognitionBtn.innerHTML = '<i class="fas fa-video-slash"></i> Desligar câmera';
+                    setRecognitionResult('Câmera ativa — aguardando identificação…');
+                } catch (err) {
+                    showNotification("Câmera não encontrada ou permissão negada.", "error");
+                }
+            };
+
+            async function recognizeFace() {
+                if (!modelsLoaded) {
+                    showNotification('Modelos de IA ainda carregando, aguarde.', 'error');
+                    return null;
+                }
+                if (!recognitionStream) {
+                    setRecognitionResult('Ligue a câmera para iniciar a identificação.', 'is-error');
+                    return null;
+                }
+
+                const people = await fetch('/people').then(res => res.json());
+                if (people.length === 0) {
+                    setRecognitionResult('Nenhuma pessoa cadastrada no sistema.', 'is-error');
+                    return null;
+                }
+
+                setRecognitionResult('Analisando…');
+
+                const detection = await faceapi.detectSingleFace(recognitionVideo, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
+                if (!detection) {
+                    setRecognitionResult('Nenhum rosto detectado.', 'is-error');
+                    return null;
+                }
+
+                const labeledDescriptors = people.map(p => new faceapi.LabeledFaceDescriptors(p.matricula, [Float32Array.from(p.descriptor)]));
+                const faceMatcher = new faceapi.FaceMatcher(labeledDescriptors);
+                const bestMatch = faceMatcher.findBestMatch(detection.descriptor);
+
+                if (bestMatch.label !== 'unknown') {
+                    const person = people.find(p => p.matricula === bestMatch.label);
+                    setRecognitionResult(`ACESSO LIBERADO — ${person.posto ? person.posto + ' ' : ''}${person.nomeGuerra || person.nome}`, 'is-ok');
+                    return person;
+                } else {
+                    setRecognitionResult('ACESSO NEGADO — rosto não identificado.', 'is-error');
+                    return null;
+                }
+            }
+
+            document.getElementById('entranceBtn').onclick = async () => {
+                const person = await recognizeFace();
+                if (person) addLog(person, 'ENTRADA');
+            };
+
+            document.getElementById('exitBtn').onclick = async () => {
+                const person = await recognizeFace();
+                if (person) addLog(person, 'SAÍDA');
+            };
+
+            // --- LÓGICA DE LOGS ---
+            async function addLog(person, type) {
+                const logEntry = { ts: new Date().toISOString(), nome: person.nome, posto: person.posto, type: type };
+                await fetch('/logs', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(logEntry)
+                });
+                loadLogs();
+                showNotification(`${type} registrada para ${person.nome}.`);
+            }
+
+            const formatadorData = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'medium' });
+
+            function logRow(l) {
+                const badgeClass = l.type === 'ENTRADA' ? 'badge-in' : 'badge-out';
+                return `<tr>
+                    <td class="cell-mono">${formatadorData.format(new Date(l.ts))}</td>
+                    <td>${escapeHtml(l.nome)}</td>
+                    <td>${escapeHtml(l.posto)}</td>
+                    <td><span class="badge ${badgeClass}">${escapeHtml(l.type)}</span></td>
+                </tr>`;
+            }
+
+            async function loadLogs(filter = '') {
+                const logTable = document.getElementById('logTable');
+                const logTableDashboard = document.getElementById('logTableDashboard');
+                logTable.innerHTML = `<tr><td colspan="4" class="table-loader">Carregando registros…</td></tr>`;
+                logTableDashboard.innerHTML = `<tr><td colspan="4" class="table-loader">Carregando registros…</td></tr>`;
+
+                let logs = await fetch('/logs').then(res => res.json());
+                logs.reverse();
+
+                if (filter) {
+                    logs = logs.filter(l => l.nome.toLowerCase().includes(filter.toLowerCase()));
+                }
+
+                if (logs.length === 0) {
+                    const emptyRow = `<tr><td colspan="4" class="table-loader">Nenhum registro encontrado.</td></tr>`;
+                    logTable.innerHTML = emptyRow;
+                    logTableDashboard.innerHTML = emptyRow;
+                } else {
+                    logTableDashboard.innerHTML = logs.slice(0, 5).map(logRow).join('');
+                    logTable.innerHTML = logs.map(logRow).join('');
+                }
+
+                updateDashboardStats();
+            }
+
+            document.getElementById('searchLog').oninput = (e) => loadLogs(e.target.value);
+
+            document.getElementById('clearLogs').onclick = async () => {
+                if (confirm('Deseja realmente limpar TODOS os registros de acesso?')) {
+                    await fetch('/logs/clear', { method: 'POST' });
+                    loadLogs();
+                    showNotification('Registros de acesso limpos.');
+                }
+            };
+
+            document.getElementById('exportCSV').onclick = async () => {
+                const logs = await fetch('/logs').then(res => res.json());
+                if (logs.length === 0) {
+                    showNotification('Não há registros para exportar.', 'error');
+                    return;
+                }
+                const header = ['Data/Hora', 'Nome', 'Posto/Graduacao', 'Movimento'];
+                const rows = logs.map(l => [formatadorData.format(new Date(l.ts)), l.nome, l.posto, l.type]);
+                const csv = [header, ...rows]
+                    .map(r => r.map(c => `"${String(c ?? '').replace(/"/g, '""')}"`).join(';'))
+                    .join('\r\n');
+
+                const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `sisrex-acessos-${new Date().toISOString().slice(0, 10)}.csv`;
+                link.click();
+                URL.revokeObjectURL(url);
+                showNotification('Arquivo CSV exportado.');
+            };
+
+            // --- FUNÇÕES DO PAINEL ---
+            async function updateDashboardStats() {
+                const people = await fetch('/people').then(res => res.json());
+                const logs = await fetch('/logs').then(res => res.json());
+
+                const today = new Date().toISOString().slice(0, 10);
+                const entradasHoje = logs.filter(l => l.ts.startsWith(today) && l.type === 'ENTRADA').length;
+                const saidasHoje = logs.filter(l => l.ts.startsWith(today) && l.type === 'SAÍDA').length;
+
+                document.getElementById('totalCadastros').innerText = people.length;
+                document.getElementById('entradasHoje').innerText = entradasHoje;
+                document.getElementById('saidasHoje').innerText = saidasHoje;
+            }
+
+            // --- INICIALIZAÇÃO ---
+            loadModels();
+            showPage('inicioUI');
+            loadPeople();
+            loadLogs();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acesso ao Sistema — SiSREx</title>
+    <link rel="icon" href="img/logo-eb.png">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+        :root {
+          --brand-900: #0d1e15;
+          --brand-800: #13291c;
+          --brand-700: #1a3a27;
+          --brand-600: #235c3c;
+          --brand-500: #2c7a4b;
+          --gold-600: #a8842f;
+          --gold-500: #c8a24a;
+          --gold-400: #ddbf76;
+
+          --bg: #f3f5f3;
+          --surface: #ffffff;
+          --surface-alt: #fafbfa;
+          --line: #e2e7e3;
+          --line-strong: #cfd7d1;
+
+          --ink: #12211a;
+          --ink-2: #3d5147;
+          --muted: #6d7f75;
+          --danger: #b42318;
+
+          --radius: 12px;
+          --radius-sm: 8px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+          font-family: 'Poppins', sans-serif;
+          background-color: var(--bg);
+          color: var(--ink);
+          min-height: 100vh;
+          display: grid;
+          place-items: center;
+          padding: 24px;
+          -webkit-font-smoothing: antialiased;
+        }
+
+        .login-container {
+          display: grid;
+          grid-template-columns: 1.05fr 1fr;
+          width: 100%;
+          max-width: 1060px;
+          min-height: 620px;
+          background-color: var(--surface);
+          border: 1px solid var(--line);
+          border-radius: 16px;
+          box-shadow: 0 24px 60px rgba(13, 30, 21, 0.14);
+          overflow: hidden;
+        }
+
+        /* ---------- PAINEL INSTITUCIONAL ---------- */
+        .login-info {
+          position: relative;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          padding: 44px 40px;
+          color: #f2f6f3;
+          background:
+            linear-gradient(150deg, rgba(13, 30, 21, 0.95) 0%, rgba(19, 41, 28, 0.9) 50%, rgba(35, 92, 60, 0.75) 100%),
+            url('img/bg-exercito.jpg') no-repeat center center;
+          background-size: cover;
+        }
+        .login-info::after {
+          content: ''; position: absolute; inset: 0 0 auto 0; height: 4px;
+          background: linear-gradient(90deg, var(--gold-600), var(--gold-400), transparent);
+        }
+
+        .crest-row { display: flex; align-items: center; gap: 16px; }
+        .crest-row img { height: 56px; width: auto; object-fit: contain; }
+        .crest-divider { width: 1px; height: 42px; background-color: rgba(255, 255, 255, 0.22); }
+        .crest-caption {
+          font-size: 0.68rem; font-weight: 500; letter-spacing: 0.11em;
+          text-transform: uppercase; color: var(--gold-400); line-height: 1.8;
+        }
+
+        .info-content h1 {
+          font-size: 2.5rem; font-weight: 700; letter-spacing: 0.02em;
+          line-height: 1.1; margin-bottom: 10px;
+        }
+        .info-content .tagline {
+          font-size: 0.72rem; font-weight: 600; letter-spacing: 0.14em;
+          text-transform: uppercase; color: var(--gold-400); margin-bottom: 18px;
+        }
+        .info-content p { font-size: 0.98rem; line-height: 1.7; color: rgba(242, 246, 243, 0.82); max-width: 400px; }
+
+        .info-features { display: grid; gap: 12px; margin-top: 28px; }
+        .info-features li {
+          display: flex; align-items: center; gap: 12px;
+          font-size: 0.85rem; color: rgba(242, 246, 243, 0.9);
+          list-style: none;
+        }
+        .info-features i {
+          display: grid; place-items: center; flex-shrink: 0;
+          width: 28px; height: 28px; border-radius: 6px;
+          background-color: rgba(255, 255, 255, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.14);
+          color: var(--gold-400); font-size: 0.75rem;
+        }
+
+        .info-footer {
+          font-size: 0.72rem; line-height: 1.7;
+          color: rgba(242, 246, 243, 0.55);
+          padding-top: 24px;
+          border-top: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        /* ---------- FORMULÁRIO ---------- */
+        .login-form-wrapper {
+          display: grid; place-items: center;
+          padding: 44px 40px;
+          background-color: var(--surface);
+        }
+        .form-content { width: 100%; max-width: 360px; }
+        .form-logo { display: block; width: 62px; margin-bottom: 26px; }
+        .form-eyebrow {
+          display: block; font-size: 0.68rem; font-weight: 600;
+          letter-spacing: 0.16em; text-transform: uppercase;
+          color: var(--gold-600); margin-bottom: 8px;
+        }
+        .form-content h2 { font-size: 1.5rem; font-weight: 600; letter-spacing: -0.01em; }
+        .form-content .subtitle { color: var(--muted); font-size: 0.88rem; margin: 6px 0 30px; }
+
+        .input-group { margin-bottom: 18px; }
+        .input-group label {
+          display: block; font-size: 0.74rem; font-weight: 600;
+          letter-spacing: 0.05em; text-transform: uppercase;
+          color: var(--ink-2); margin-bottom: 7px;
+        }
+        .input-wrap { position: relative; }
+        .input-wrap > i {
+          position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+          color: var(--muted); font-size: 0.82rem; pointer-events: none;
+        }
+        .input-group input {
+          width: 100%; padding: 12px 14px 12px 40px;
+          border: 1px solid var(--line-strong); border-radius: var(--radius-sm);
+          font-family: inherit; font-size: 0.94rem; color: var(--ink);
+          background-color: var(--surface);
+          transition: border-color 0.18s ease, box-shadow 0.18s ease;
+        }
+        .input-group input:focus {
+          border-color: var(--brand-500);
+          box-shadow: 0 0 0 3px rgba(44, 122, 75, 0.14);
+          outline: none;
+        }
+        .toggle-password {
+          position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+          background: none; border: none; cursor: pointer;
+          padding: 8px 10px; color: var(--muted); font-size: 0.85rem;
+        }
+        .toggle-password:hover { color: var(--ink-2); }
+
+        .btn-login {
+          width: 100%; margin-top: 8px;
+          display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+          padding: 14px; border: none; border-radius: var(--radius-sm);
+          background-color: var(--brand-700); color: #fff;
+          font-family: inherit; font-size: 0.96rem; font-weight: 600; letter-spacing: 0.02em;
+          cursor: pointer; transition: background-color 0.2s ease, transform 0.12s ease;
+        }
+        .btn-login:hover { background-color: var(--brand-800); }
+        .btn-login:active { transform: translateY(1px); }
+
+        .form-alert {
+          display: none; align-items: center; gap: 10px;
+          margin-top: 18px; padding: 11px 14px;
+          border-radius: var(--radius-sm);
+          background-color: #fdf0ee; border: 1px solid #f1cfc9;
+          color: var(--danger); font-size: 0.84rem; font-weight: 500;
+        }
+        .form-alert.show { display: flex; }
+
+        .security-note {
+          display: flex; align-items: flex-start; gap: 10px;
+          margin-top: 28px; padding-top: 22px;
+          border-top: 1px solid var(--line);
+          font-size: 0.76rem; line-height: 1.65; color: var(--muted);
+        }
+        .security-note i { color: var(--brand-500); margin-top: 3px; }
+
+        @media (max-width: 900px) {
+          .login-container { grid-template-columns: 1fr; max-width: 460px; min-height: 0; }
+          .login-info { padding: 32px 28px; gap: 26px; }
+          .info-content h1 { font-size: 2rem; }
+          .info-features, .info-footer, .info-content p { display: none; }
+          .login-form-wrapper { padding: 34px 28px 40px; }
+          .form-logo { display: none; }
+        }
+        @media (max-width: 420px) {
+          body { padding: 0; }
+          .login-container { border: none; border-radius: 0; box-shadow: none; min-height: 100vh; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <div class="login-info">
+            <div class="crest-row">
+                <img src="img/logo-eb.png" alt="Exército Brasileiro">
+                <span class="crest-divider"></span>
+                <img src="img/cpor-logo.png" alt="CPOR">
+                <span class="crest-divider"></span>
+                <span class="crest-caption">
+                    Exército<br>Brasileiro
+                </span>
+            </div>
+
+            <div class="info-content">
+                <h1>SiSREx</h1>
+                <p class="tagline">Controle e monitoramento de acesso</p>
+                <p>Plataforma institucional de identificação por reconhecimento facial para o registro seguro e auditável da entrada e saída de militares e visitantes.</p>
+                <ul class="info-features">
+                    <li><i class="fas fa-user-check"></i> Identificação pessoal e intransferível</li>
+                    <li><i class="fas fa-clock-rotate-left"></i> Histórico completo de movimentações</li>
+                    <li><i class="fas fa-file-shield"></i> Registros auditáveis e protegidos</li>
+                </ul>
+            </div>
+
+            <p class="info-footer">
+                Centro de Preparação de Oficiais da Reserva<br>
+                Sistema de uso restrito — acessos registrados e auditados.
+            </p>
+        </div>
+
+        <div class="login-form-wrapper">
+            <div class="form-content">
+                <img src="img/logo-eb.png" alt="Exército Brasileiro" class="form-logo">
+                <span class="form-eyebrow">Área restrita</span>
+                <h2>Acesso ao sistema</h2>
+                <p class="subtitle">Informe suas credenciais institucionais para prosseguir.</p>
+
+                <form id="loginForm" novalidate>
+                    <div class="input-group">
+                        <label for="email">Nome de usuário</label>
+                        <div class="input-wrap">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="email" name="email" autocomplete="username" placeholder="Usuário" required value="admin">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="senha">Senha</label>
+                        <div class="input-wrap">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="senha" name="senha" autocomplete="current-password" placeholder="••••••••" required value="admin123">
+                            <button type="button" class="toggle-password" id="togglePassword" aria-label="Mostrar senha">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-login">
+                        <i class="fas fa-arrow-right-to-bracket"></i> Entrar no sistema
+                    </button>
+                    <div class="form-alert" id="formAlert">
+                        <i class="fas fa-circle-exclamation"></i>
+                        <span id="formAlertText">Nome de usuário ou senha inválidos.</span>
+                    </div>
+                </form>
+
+                <p class="security-note">
+                    <i class="fas fa-shield-halved"></i>
+                    <span>O uso deste sistema é monitorado. Tentativas de acesso são registradas para fins de auditoria e segurança da informação.</span>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginForm = document.getElementById('loginForm');
+            const formAlert = document.getElementById('formAlert');
+            const togglePassword = document.getElementById('togglePassword');
+            const senhaInput = document.getElementById('senha');
+
+            togglePassword.addEventListener('click', () => {
+                const visible = senhaInput.type === 'text';
+                senhaInput.type = visible ? 'password' : 'text';
+                togglePassword.innerHTML = visible
+                    ? '<i class="fas fa-eye"></i>'
+                    : '<i class="fas fa-eye-slash"></i>';
+                togglePassword.setAttribute('aria-label', visible ? 'Mostrar senha' : 'Ocultar senha');
+            });
+
+            if (loginForm) {
+                loginForm.addEventListener('submit', (event) => {
+                    event.preventDefault(); // Impede o recarregamento da página
+
+                    const username = document.getElementById('email').value.trim();
+                    const password = senhaInput.value;
+
+                    // Lógica de autenticação simples
+                    if (username === 'admin' && password === 'admin123') {
+                        formAlert.classList.remove('show');
+                        window.location.href = 'home.html';
+                    } else {
+                        formAlert.classList.add('show');
+                        senhaInput.focus();
+                        senhaInput.select();
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
