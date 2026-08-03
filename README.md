@@ -8,6 +8,8 @@ contra a base cadastrada para liberar ou negar o acesso — registrando cada eve
 Projeto desenvolvido durante meu período como Aluno da Arma de Comunicações no
 CPOR de São Paulo (Exército Brasileiro), em 2025.
 
+![Demonstração do SISREx](docs/demo.gif)
+
 ---
 
 ## Funcionalidades
@@ -30,6 +32,9 @@ sobre TensorFlow.js para detecção e reconhecimento facial no navegador.
 Modelos utilizados: `tinyFaceDetector` (detecção), `faceLandmark68Net` (pontos de referência)
 e `faceRecognitionNet` (geração do descritor).
 
+O reconhecimento roda inteiramente no navegador: a imagem do rosto nunca trafega pela rede,
+apenas o descritor de 128 dimensões é persistido.
+
 **Back-end**
 Node.js com Express, expondo uma API REST e servindo os arquivos estáticos do front-end.
 Persistência em arquivos JSON.
@@ -49,7 +54,8 @@ npm start
 
 Acesse **http://localhost:3000**.
 
-Credenciais de acesso ao dashboard: `admin` / `admin123`.
+Credenciais de acesso ao dashboard: `admin` / `admin123` — fixas no código por ser um
+protótipo. Ver [Limitações conhecidas](#limitações-conhecidas).
 
 > **Importante:** acesse por `localhost`, e não abrindo o arquivo HTML diretamente.
 > Navegadores só liberam a webcam em contexto seguro (`localhost` ou HTTPS).
@@ -78,12 +84,14 @@ SISREx/
 │   ├── people.json       # base de pessoas cadastradas
 │   ├── logs.json         # histórico de acessos
 │   └── package.json
-└── frontend/
-    ├── index.html        # tela de login
-    ├── home.html         # dashboard (cadastro, reconhecimento, logs)
-    ├── models/           # pesos dos modelos do face-api.js
-    ├── img/
-    └── css/
+├── frontend/
+│   ├── index.html        # tela de login
+│   ├── home.html         # dashboard (cadastro, reconhecimento, logs)
+│   ├── models/           # pesos dos modelos do face-api.js
+│   ├── img/
+│   └── css/
+└── docs/
+    └── demo.gif          # demonstração do sistema em funcionamento
 ```
 
 ---
@@ -113,6 +121,9 @@ e o que eu faria diferente hoje:
 - **Um único descritor por pessoa.** A precisão do reconhecimento melhora bastante com várias
   capturas por indivíduo, em ângulos e condições de luz diferentes.
 - **Sem testes automatizados.**
+
+O projeto é de 2025 e está mantido como estava na entrega. As limitações acima refletem o
+que eu mudaria hoje.
 
 ---
 
